@@ -8,6 +8,8 @@
 
 # photobackup
 
+![](assets/photobackup.jpg)
+
 Backup photos to NAS
 
 ## 🔥 Usage
