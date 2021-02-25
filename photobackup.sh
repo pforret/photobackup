@@ -42,8 +42,9 @@ flag|v|verbose|output more
 flag|f|force|do not ask for confirmation (always yes)
 option|l|log_dir|folder for log files |$HOME/log/$script_prefix
 option|t|tmp_dir|folder for temp files|.tmp
-param|1|action|action to perform: analyze/convert
-param|?|input|input file/text
+param|1|action|action to perform: backup/check
+param|?|source|source folder
+param|?|destin|destination folder
 " | grep -v '^#' | grep -v '^\s*$'
 }
 
@@ -56,11 +57,12 @@ main() {
 
   action=$(lower_case "$action")
   case $action in
-  action1)
-    #TIP: use «$script_prefix action1» to ...
-    #TIP:> $script_prefix action1 input.txt
+  backup)
+    #TIP: use «$script_prefix backup» to ...
+    #TIP:> $script_prefix backup input.txt
+    require_binary "progressbar" "basher install pforret/progressbar"
     # shellcheck disable=SC2154
-    do_action1 "$input"
+    do_backup "$source" "$destin"
     ;;
 
   action2)
@@ -100,11 +102,18 @@ main() {
 ## Put your helper scripts here
 #####################################################################
 
-do_action1() {
-  log_to_file "action1 [$input]"
+do_backup() {
+  debug "backup [$1] => [$2]"
   # Examples of required binaries/scripts and how to install them
-  # require_binary "convert" "imagemagick"
-  # require_binary "progressbar" "basher install pforret/progressbar"
+  require_binary rsync
+  require_binary "progressbar" "basher install pforret/progressbar"
+
+  [[ ! -d "$2" ]] && die "Destination [$2] does not exists yet, maybe mount it?"
+  # shellcheck disable=SC2086
+  NB_LINES="$(rsync --dry-run --verbose --recursive --update --perms --times "$1/"* "$2" 2>&1 | awk 'END {print NR}')"
+  announce "$script_prefix: $NB_LINES files to sync"
+  debug "Output in $tmp_file"
+  rsync --verbose --recursive --update --perms --times "$1/"* "$2" | tee "$tmp_file"  | progressbar lines "$NB_LINES"
   # (code)
 }
 
