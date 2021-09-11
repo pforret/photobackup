@@ -1,12 +1,4 @@
 #!/usr/bin/env bash
-### ==============================================================================
-### SO HOW DO YOU PROCEED WITH YOUR SCRIPT?
-### 1. define the options/parameters and defaults you need in list_options()
-### 2. define dependencies on other programs/scripts in list_dependencies()
-### 3. implement the different actions in main() with helper functions
-### 4. implement helper functions you defined in previous step
-### ==============================================================================
-
 ### Created by Peter Forret ( pforret ) on 2021-02-25
 ### Based on https://github.com/pforret/bashew 1.15.0
 script_version="0.0.1" # if there is a VERSION.md in this script's folder, it will take priority for version number
@@ -15,25 +7,6 @@ readonly script_created="2021-02-25"
 readonly run_as_root=-1 # run_as_root: 0 = don't check anything / 1 = script MUST run as root / -1 = script MAY NOT run as root
 
 list_options() {
-  ### Change the next lines to reflect which flags/options/parameters you need
-  ### flag:   switch a flag 'on' / no value specified
-  ###     flag|<short>|<long>|<description>
-  ###     e.g. "-v" or "--verbose" for verbose output / default is always 'off'
-  ###     will be available as $<long> in the script e.g. $verbose
-  ### option: set an option / 1 value specified
-  ###     option|<short>|<long>|<description>|<default>
-  ###     e.g. "-e <extension>" or "--extension <extension>" for a file extension
-  ###     will be available a $<long> in the script e.g. $extension
-  ### list: add an list/array item / 1 value specified
-  ###     list|<short>|<long>|<description>| (default is ignored)
-  ###     e.g. "-u <user1> -u <user2>" or "--user <user1> --user <user2>"
-  ###     will be available a $<long> array in the script e.g. ${user[@]}
-  ### param:  comes after the options
-  ###     param|<type>|<long>|<description>
-  ###     <type> = 1 for single parameters - e.g. param|1|output expects 1 parameter <output>
-  ###     <type> = ? for optional parameters - e.g. param|1|output expects 1 parameter <output>
-  ###     <type> = n for list parameter    - e.g. param|n|inputs expects <input1> <input2> ... <input99>
-  ###     will be available as $<long> in the script after option/param parsing
   echo -n "
 #commented lines will be filtered
 flag|h|help|show usage
@@ -41,10 +14,10 @@ flag|q|quiet|no output
 flag|v|verbose|output more
 flag|f|force|do not ask for confirmation (always yes)
 option|l|log_dir|folder for log files |$HOME/log/$script_prefix
-option|t|tmp_dir|folder for temp files|.tmp
+option|t|tmp_dir|folder for temp files|/tmp/$script_prefix
+option|s|source|source folder
+option|d|destin|destination folder
 param|1|action|action to perform: backup/check
-param|?|source|source folder
-param|?|destin|destination folder
 " | grep -v '^#' | grep -v '^\s*$'
 }
 
@@ -60,6 +33,8 @@ main() {
   backup)
     #TIP: use «$script_prefix backup» to ...
     #TIP:> $script_prefix backup input.txt
+  # Examples of required binaries/scripts and how to install them
+    require_binary rsync
     require_binary "progressbar" "basher install pforret/progressbar"
     # shellcheck disable=SC2154
     do_backup "$source" "$destin"
@@ -104,16 +79,16 @@ main() {
 
 do_backup() {
   debug "backup [$1] => [$2]"
-  # Examples of required binaries/scripts and how to install them
-  require_binary rsync
-  require_binary "progressbar" "basher install pforret/progressbar"
 
-  [[ ! -d "$2" ]] && die "Destination [$2] does not exists yet, maybe mount it?"
+  [[ ! -d "$2" ]] && die "Destination [$2] does not exist yet, maybe mount it?"
+  progress "Checking what needs to be backed up"
   # shellcheck disable=SC2086
-  NB_LINES="$(rsync --dry-run --verbose --recursive --update --perms --times "$1/"* "$2" 2>&1 | awk 'END {print NR}')"
-  announce "$script_prefix: $NB_LINES files to sync"
   debug "Output in $tmp_file"
-  rsync --verbose --recursive --update --perms --times "$1/"* "$2" | tee "$tmp_file"  | progressbar lines "$NB_LINES"
+  rsync --dry-run --verbose --recursive --update --perms --times "$1/"* "$2" &> "$tmp_file"
+
+  NB_LINES="$(< "$tmp_file" awk 'END {print NR}')"
+  announce "$script_prefix: $NB_LINES files to back up"
+  rsync --verbose --recursive --update --perms --times "$1/"* "$2" | tee "$tmp_file" | progressbar lines "$NB_LINES"
   # (code)
 }
 
