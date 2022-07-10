@@ -3,3 +3,4 @@ log
 *.tmp
 .env
 .idea
+/pb_macmini.sh
