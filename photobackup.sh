@@ -28,46 +28,45 @@ param|1|action|action to perform: backup/check
 main() {
   log_to_file "[$script_basename] $script_version started"
 
-  action=$(lower_case "$action")
-  case $action in
-  backup)
-    #TIP: use «$script_prefix backup» to ...
-    #TIP:> $script_prefix backup input.txt
+  case ${action,,} in
+backup)
+  #TIP: use «$script_prefix backup» to ...
+  #TIP:> $script_prefix backup input.txt
   # Examples of required binaries/scripts and how to install them
-    require_binary rsync
-    require_binary "progressbar" "basher install pforret/progressbar"
-    # shellcheck disable=SC2154
-    do_backup "$source" "$destin"
-    ;;
+  require_binary rsync
+  require_binary "progressbar" "basher install pforret/progressbar"
+  # shellcheck disable=SC2154
+  do_backup "$source" "$destin"
+  ;;
 
-  action2)
-    #TIP: use «$script_prefix action2» to ...
-    #TIP:> $script_prefix action2 input.txt output.pdf
+action2)
+  #TIP: use «$script_prefix action2» to ...
+  #TIP:> $script_prefix action2 input.txt output.pdf
 
-    # shellcheck disable=SC2154
-    do_action2 "$input" "$output"
-    ;;
+  # shellcheck disable=SC2154
+  do_action2 "$input" "$output"
+  ;;
 
-  check|env)
-    ## leave this default action, it will make it easier to test your script
-    #TIP: use «$script_prefix check» to check if this script is ready to execute and what values the options/flags are
-    #TIP:> $script_prefix check
-    #TIP: use «$script_prefix env» to generate an example .env file
-    #TIP:> $script_prefix env > .env
-    check_script_settings
-    ;;
+check | env)
+  ## leave this default action, it will make it easier to test your script
+  #TIP: use «$script_prefix check» to check if this script is ready to execute and what values the options/flags are
+  #TIP:> $script_prefix check
+  #TIP: use «$script_prefix env» to generate an example .env file
+  #TIP:> $script_prefix env > .env
+  check_script_settings
+  ;;
 
-  update)
-    ## leave this default action, it will make it easier to test your script
-    #TIP: use «$script_prefix update» to update to the latest version
-    #TIP:> $script_prefix check
-    update_script_to_latest
-    ;;
+update)
+  ## leave this default action, it will make it easier to test your script
+  #TIP: use «$script_prefix update» to update to the latest version
+  #TIP:> $script_prefix check
+  update_script_to_latest
+  ;;
 
-  *)
-    die "action [$action] not recognized"
-    ;;
-  esac
+*)
+  die "action [$action] not recognized"
+  ;;
+esac
   log_to_file "[$script_basename] ended after $SECONDS secs"
   #TIP: >>> bash script created with «pforret/bashew»
   #TIP: >>> for bash development, also check out «pforret/setver» and «pforret/progressbar»
@@ -81,15 +80,10 @@ do_backup() {
   debug "backup [$1] => [$2]"
 
   [[ ! -d "$2" ]] && die "Destination [$2] does not exist yet, maybe mount it?"
-  progress "Checking what needs to be backed up"
   # shellcheck disable=SC2086
-  debug "Output in $tmp_file"
-  rsync --dry-run --verbose --recursive --update --perms --times "$1/"* "$2" &> "$tmp_file"
+  debug "Progress in $tmp_file ..."
+  rsync --verbose --recursive --update --perms --times "$1/"* "$2" | tee "$tmp_file" | progressbar lines "$1"
 
-  NB_LINES="$(< "$tmp_file" awk 'END {print NR}')"
-  announce "$script_prefix: $NB_LINES files to back up"
-  rsync --verbose --recursive --update --perms --times "$1/"* "$2" | tee "$tmp_file" | progressbar lines "$NB_LINES"
-  # (code)
 }
 
 do_action2() {
@@ -682,7 +676,7 @@ prep_log_and_temp_dir() {
   log_file=""
   if [[ -n "${tmp_dir:-}" ]]; then
     folder_prep "$tmp_dir" 1
-    tmp_file=$(mktemp "$tmp_dir/$execution_day.XXXXXX")
+    tmp_file=$(mktemp "$tmp_dir/$execution_day.XXXXXX.txt")
     debug "$config_icon tmp_file: $tmp_file"
     # you can use this temporary file in your program
     # it will be deleted automatically if the program ends without problems
