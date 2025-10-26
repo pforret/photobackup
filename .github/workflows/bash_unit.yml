@@ -17,7 +17,7 @@ jobs:
       run: sudo apt install -y gawk
 
     - name: Check for basic execution
-      run: ls ./*.sh | xargs bash
+      run: phackup.sh
 
     - name: Unit testing with bash_unit
       run: tests/bash_unit tests/test_*
