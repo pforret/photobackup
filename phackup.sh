@@ -62,7 +62,7 @@ function Script:main() {
 
   case "${action,,}" in
   backup)
-    #TIP: use «$script_prefix backup» to backup SOURCE to DESTIN with rsync
+    #TIP: use «$script_prefix backup» to back up SOURCE to DESTIN with rsync
     #TIP:> $script_prefix backup
     Os:require rsync
     Os:require "progressbar" "basher install pforret/progressbar"
@@ -77,19 +77,6 @@ function Script:main() {
       | tee "$tmp_file" \
       | progressbar lines "$SOURCE"
 
-    ;;
-
-  action2)
-    #TIP: use «$script_prefix action2» to ...
-    #TIP:> $script_prefix action2
-    do_action2
-    ;;
-
-  action3)
-    #TIP: use «$script_prefix action3» to ...
-    #TIP:> $script_prefix action3
-    # Os:require "convert" "imagemagick"
-    # CONVERT $input $output
     ;;
 
   check | env)

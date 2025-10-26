@@ -32,7 +32,7 @@ Flags, options and parameters:
 
 ```
 Program : phackup.sh  by peter@forret.com
-Version : v0.3.0 (Oct 26 12:42:19 2025)
+Version : v0.3.0 (Oct 26 12:49:26 2025)
 Purpose : Photo backup script
 Usage   : phackup.sh [-h] [-Q] [-V] [-f] [-L <LOG_DIR>] [-T <TMP_DIR>] [-S <SOURCE>] [-D <DESTIN>] <action>
 Flags, options and parameters:
@@ -45,6 +45,18 @@ Flags, options and parameters:
     -S|--SOURCE <?>  : [option] source folder
     -D|--DESTIN <?>  : [option] destination folder
     <action>         : [choice] action to perform  [options: backup,check,env,update]
+                                                                                                           
+### TIPS & EXAMPLES
+* use phackup backup to back up SOURCE to DESTIN with rsync
+  phackup backup
+* use phackup check to check if this script is ready to execute and what values the options/flags are
+  phackup check
+* use phackup env to generate an example .env file
+  phackup env > .env
+* use phackup update to update to the latest version
+  phackup update
+* >>> bash script created with pforret/bashew
+* >>> for bash development, also check out pforret/setver and pforret/progressbar
 ```
 
 ## 🚀 Installation
@@ -55,8 +67,10 @@ with [basher](https://github.com/basherpm/basher)
 
 or with `git`
 
-	$ git clone https://github.com/pforret/photobackup.git
-	$ cd photobackup
+```bash
+git clone https://github.com/pforret/photobackup.git
+cd photobackup
+```
 
 ## 📝 Acknowledgements
 
