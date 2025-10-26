@@ -73,7 +73,7 @@ function Script:main() {
     local tmp_file
     tmp_file="$(Os:tempfile)"
     IO:debug "Progress in $tmp_file ..."
-    rsync --verbose --recursive --update --perms --times "$SOURCE/"* "$DESTIN" \
+    stdbuf -oL rsync --verbose --recursive --update --perms --times "$SOURCE/"* "$DESTIN" \
       | tee "$tmp_file" \
       | progressbar lines "$SOURCE"
 

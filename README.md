@@ -13,6 +13,8 @@
 Backup photos to NAS
 
 ## 🔥 Usage
+
+Old version: photobackup.sh -s /path/to/source -d /path/to/destin backup
 ```
 Program: photobackup 0.3.0 by peter@forret.com
 Updated: Oct 26 11:08:56 2025
@@ -30,6 +32,7 @@ Flags, options and parameters:
     <action>         : [parameter] action to perform: backup/check
 ```
 
+New version: phackup.sh -S /path/to/source -D /path/to/destin backup
 ```
 Program : phackup.sh  by peter@forret.com
 Version : v0.3.0 (Oct 26 12:49:26 2025)

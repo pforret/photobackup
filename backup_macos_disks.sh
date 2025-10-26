@@ -19,7 +19,7 @@ DESTINATION="/Volumes/photo"
 [[ ! -d "$DESTINATION" ]] && echo "Error: Destination $DESTINATION not found" && exit 1
 
 # Get the directory where this script is located
-PHOTOBACKUP="$(which photobackup)"
+PHOTOBACKUP="$(which phackup.sh)"
 
 # Check if photobackup script exists
 if [[ ! -f "$PHOTOBACKUP" ]]; then
@@ -32,7 +32,8 @@ while IFS= read -r mount_point; do
     # Skip empty lines
     [[ -z "$mount_point" ]] && continue
     [[ ! -d "$mount_point/Originals" ]] && continue
-    echo "Found Originals in: $mount_point"
-    echo "Running: $PHOTOBACKUP -s \"$mount_point/Originals\" -d \"$DESTINATION/Originals\" backup"
-    "$PHOTOBACKUP" -s "$mount_point/Originals" -d "$DESTINATION/Originals" backup
+    echo "----------------------------------------"
+    echo "Found Originals in: $(du -sh "$mount_point" 2>/dev/null)"
+    echo "Running: $PHOTOBACKUP -S \"$mount_point/Originals\" -D \"$DESTINATION/Originals\" backup"
+    "$PHOTOBACKUP" -S "$mount_point/Originals" -D "$DESTINATION/Originals" backup
 done < <(mount | grep -E '^/dev/' | awk '{print $3}')
