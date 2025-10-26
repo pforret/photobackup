@@ -1,6 +1,6 @@
-log
-.tmp
 *.tmp
 .env
-.idea
-/pb_macmini.sh
+/.idea
+/.tmp
+/log
+/tmp/
